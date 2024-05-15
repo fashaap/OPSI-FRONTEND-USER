@@ -6,29 +6,73 @@ import {
   Input,
   Label,
   Textarea,
-  Listbox,
-  ListboxButton,
-  ListboxOption,
-  ListboxOptions,
-  Transition,
 } from "@headlessui/react";
-import { CheckIcon, ChevronDownIcon } from "@heroicons/react/20/solid";
-import { useState } from "react";
+import Select from "react-select";
+import { useEffect, useState } from "react";
 import clsx from "clsx";
 
 const CreateTicketPage = () => {
-  const [selectedOption, setSelectedOption] = useState("");
+  const [selectedOption, setSelectedOption] = useState([]);
   const [enabledVerif, setEnabledVerif] = useState(false);
 
-  const people = [
-    { id: 1, name: "Tom Cook" },
-    { id: 2, name: "Wade Cooper" },
-    { id: 3, name: "Tanya Fox" },
-    { id: 4, name: "Arlene Mccoy" },
-    { id: 5, name: "Devon Webb" },
+  const options = [
+    {
+      id: 1,
+      value: "yayat hidayat, S.Kom",
+      mapel: "informatika",
+      label: "yayat hidayat, S.Kom - informatika",
+      color: "bg-blue-500",
+    },
+    {
+      id: 1,
+      value: "ahejik, S.Kom",
+      mapel: "informatika",
+      label: "ahejik, S.Kom - informatika",
+      color: "bg-blue-500",
+    },
+    {
+      id: 2,
+      value: "Kiki Ginayat, S.Kom",
+      mapel: "matematika",
+      label: "Kiki Ginayat, S.Kom - matematika",
+      color: "bg-red-500",
+    },
+    {
+      id: 3,
+      value: "Wawan Suparman, S.Ti",
+      mapel: "biologi",
+      label: "Wawan Suparman, S.Ti - biologi",
+      color: "bg-green-500",
+    },
+    {
+      id: 4,
+      value: "abcde, S.Kom",
+      mapel: "fisika",
+      label: "abcde, S.Kom - fisika",
+      color: "bg-yellow-500",
+    },
+    {
+      id: 5,
+      value: "afgdh, S.Kom",
+      mapel: "geografi",
+      label: "afgdh, S.Kom - geografi",
+      color: "bg-purple-500",
+    },
+    {
+      id: 6,
+      value: "kkwo2, S.Kom",
+      mapel: "sejarah",
+      label: "kkwo2, S.Kom - sejarah",
+      color: "bg-pink-500",
+    },
+    {
+      id: 7,
+      value: "pp2id, S.Kom",
+      mapel: "bahasa inggris",
+      label: "pp2id, S.Kom - bahasa inggris",
+      color: "bg-indigo-500",
+    },
   ];
-
-  const [selected, setSelected] = useState(people[1]);
 
   const data = [
     {
@@ -57,50 +101,9 @@ const CreateTicketPage = () => {
     },
   ];
 
-  const mapel = [
-    {
-      id: 1,
-      name: "yayat hidayat, S.Kom",
-      mapel: "informatika",
-      color: "bg-blue-500",
-    },
-    {
-      id: 2,
-      name: "Kiki Ginayat, S.Kom",
-      mapel: "matematika",
-      color: "bg-red-500",
-    },
-    {
-      id: 3,
-      name: "Wawan Suparman, S.Ti",
-      mapel: "biologi",
-      color: "bg-green-500",
-    },
-    {
-      id: 4,
-      name: "yayat hidayat, S.Kom",
-      mapel: "fisika",
-      color: "bg-yellow-500",
-    },
-    {
-      id: 5,
-      name: "yayat hidayat, S.Kom",
-      mapel: "geografi",
-      color: "bg-purple-500",
-    },
-    {
-      id: 6,
-      name: "yayat hidayat, S.Kom",
-      mapel: "sejarah",
-      color: "bg-pink-500",
-    },
-    {
-      id: 7,
-      name: "yayat hidayat, S.Kom",
-      mapel: "bahasa inggris",
-      color: "bg-indigo-500",
-    },
-  ];
+  const submit = () => {
+    console.log(selectedOption);
+  };
 
   return (
     <div className="container mx-auto">
@@ -152,7 +155,7 @@ const CreateTicketPage = () => {
               <Input
                 type="time"
                 className={clsx(
-                  "mt-3 block w-full rounded-lg border-none bg-white/5 py-1.5 px-3 text-sm/6 text-white",
+                  "mt-3 block  rounded-lg border-none bg-white/5 py-1.5 px-3 text-sm/6 text-white",
                   "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
                 )}
               />
@@ -183,70 +186,48 @@ const CreateTicketPage = () => {
             <Description className="text-sm/6 text-white/50">
               Jam pelajaran apa saja yang izin?
             </Description>
-            {mapel.length !== 0 ? (
-              <div className="mt-3 w-full rounded-lg bg-white/5 py-4 pr-8 pl-3 text-left text-sm/6 text-white ">
-                <div className="grid grid-flow-row-dense gap-3">
-                  <div className="flex flex-wrap items-center gap-3">
-                    {mapel.map((item, idx) => {
-                      return (
-                        <h1
-                          key={idx}
-                          className={`badge ${
-                            (mapel.length > 0 &&
-                              mapel.filter(
-                                (data) => data.mapel === item.mapel
-                              )[0]?.color) ||
-                            "bg-blue-500"
-                          } text-white px-3 py-1 rounded-2xl font-semibold max-w-full`}
-                        >
-                          {item.name} - {item.mapel}
-                        </h1>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            ) : null}
-            <Listbox value={selected} onChange={setSelected}>
-              <ListboxButton
-                className={clsx(
-                  "mt-3 relative block w-full rounded-lg bg-white/5 py-1.5 pr-8 pl-3 text-left text-sm/6 text-white",
-                  "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
-                )}
-              >
-                {selected.name}
-                <ChevronDownIcon
-                  className="group pointer-events-none absolute top-2.5 right-2.5 size-4 fill-white/60"
-                  aria-hidden="true"
-                />
-              </ListboxButton>
-              <Transition
-                leave="transition ease-in duration-100"
-                leaveFrom="opacity-100"
-                leaveTo="opacity-0"
-              >
-                <ListboxOptions
-                  anchor="bottom-right"
-                  style={{ right: 0 }}
-                  className={`mt-3 w-[var(--button-width)] rounded-xl border border-white/5 bg-white/5 p-1 [--anchor-gap:var(--spacing-1)] focus:outline-none max-h-72 overflow-y-auto ${
-                    mapel.length > 0 && mapel.length * 38 > 400
-                      ? "overflow-auto"
-                      : ""
-                  }`}
-                >
-                  {mapel.map((person, idx) => (
-                    <ListboxOption
-                      key={idx}
-                      value={person}
-                      className="group flex cursor-default items-center gap-2 rounded-lg py-1.5 px-3 select-none data-[focus]:bg-white/10"
-                    >
-                      <CheckIcon className="invisible size-4 fill-white group-data-[selected]:visible" />
-                      <div className="text-sm/6 text-white">{person.name}</div>
-                    </ListboxOption>
-                  ))}
-                </ListboxOptions>
-              </Transition>
-            </Listbox>
+
+            <Select
+              isMulti
+              unstyled
+              closeMenuOnSelect={false}
+              options={options}
+              placeholder="Pilih mata pelajaran"
+              onChange={(event) => setSelectedOption(event)}
+              classNames={{
+                multiValueRemove: () =>
+                  "inline-flex items-center justify-center w-6 h-6 ml-2 rounded-xl text-white",
+                multiValue: () =>
+                  ` ${options.map(
+                    (option) => `${option.color} `
+                  )} font-semibold text-white m-1 ps-2 py-1 rounded-md`,
+                input: () => "[&_input:focus]:ring-0",
+                control: () =>
+                  clsx(
+                    "mt-3 block w-full resize-none rounded-lg border-none bg-white/5 py-1.5 px-3 text-sm/6 text-white",
+                    "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
+                  ),
+                menu: () =>
+                  clsx(
+                    "mt-3 block w-full resize-none rounded-lg border-none bg-white/5 py-1.5 px-3 text-sm/6 text-white",
+                    "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
+                  ),
+                option: ({ isFocused, isSelected }) =>
+                  clsx(
+                    "py-2 px-3 rounded my-1",
+                    isFocused && "hover:cursor-pointer hover:",
+                    isSelected && "bg-slate-300"
+                  ),
+                scrollIndicator: () => "bg-gray-500 rounded-full p-1",
+              }}
+              classNamePrefix="select "
+            />
+            {/* <Button
+              className="bg-green-100 p-2 rounded-xl mt-4"
+              onClick={submit}
+            >
+              submit
+            </Button> */}
           </Field>
         </div>
       </div>
