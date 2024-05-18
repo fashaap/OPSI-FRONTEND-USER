@@ -3,7 +3,6 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import TicketPage from "./pages/page/ticket/TicketPage.jsx";
-import SettingPage from "./pages/page/setting/SettingPage.jsx";
 import PageLayout from "./pages/layouts/PageLayout.jsx";
 import CreateTicketPage from "./pages/page/ticket/CreateTicketPage.jsx";
 
@@ -14,14 +13,6 @@ const router = createBrowserRouter([
     element: (
       <PageLayout>
         <TicketPage />
-      </PageLayout>
-    ),
-  },
-  {
-    path: "/settings",
-    element: (
-      <PageLayout>
-        <SettingPage />
       </PageLayout>
     ),
   },

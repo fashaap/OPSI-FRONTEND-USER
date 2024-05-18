@@ -282,8 +282,8 @@ const TicketPage = () => {
   };
 
   return (
-    <div className="flex flex-col justify-center items-center h-full w-full gap-10">
-      <div className="text-center text-white mt-20 mb-20">
+    <div className="mb-[22vh]">
+      <div className="text-center text-white mb-20">
         <h1 className="text-4xl font-bold">SI MIKA</h1>
         <h1 className="text-2xl font-semibold">
           SISTEM MANAJEMEN IZIN KELUAR SISWA
