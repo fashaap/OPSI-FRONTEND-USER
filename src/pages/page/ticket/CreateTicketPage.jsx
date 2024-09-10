@@ -8,71 +8,83 @@ import {
   Textarea,
 } from "@headlessui/react";
 import Select from "react-select";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import clsx from "clsx";
+import { useNavigate, useParams } from "react-router-dom";
+import AxiosInstance from "../../auth/AxiosInstance";
 
 const CreateTicketPage = () => {
+  const { id } = useParams();
+  const token = localStorage.getItem("userToken");
+  // console.log("id:", id);
+
+  const [selectedJenis, setSelectedJenis] = useState(null);
+  const [selectedOptions, setSelectedOptions] = useState([]);
+  const [timePicked, setTimePicked] = useState("");
+  const [description, setDescription] = useState("");
+  const [selectedHour, setSelectedHour] = useState(null);
+  const [selectedMinute, setSelectedMinute] = useState(null);
+  const [userData, setUserData] = useState({});
+  const [checked1, setChecked1] = useState(false);
+  const [checked2, setChecked2] = useState(false);
+  const [checked3, setChecked3] = useState(false);
+
+  const navigate = useNavigate();
   const codeJenis = {
-    dispen: 505,
-    izin: 405,
-    pulang: 305,
+    dispen: 7010,
+    izin: 7020,
+    pulang: 7020,
   };
 
   const options = [
     {
       id: 1,
-      value: "yayat hidayat, S.Kom",
+      value: "informatika",
       mapel: "informatika",
-      label: "yayat hidayat, S.Kom - informatika",
+      label: "informatika",
       color: "bg-blue-500",
     },
+
     {
       id: 2,
-      value: "ahejik, S.Kom",
-      mapel: "informatika",
-      label: "ahejik, S.Kom - informatika",
-      color: "bg-blue-500",
-    },
-    {
-      id: 3,
-      value: "Kiki Ginayat, S.Kom",
+      value: "matematika",
       mapel: "matematika",
-      label: "Kiki Ginayat, S.Kom - matematika",
+      label: "matematika",
       color: "bg-red-500",
     },
     {
-      id: 4,
-      value: "Wawan Suparman, S.Ti",
+      id: 3,
+      value: "biologi",
       mapel: "biologi",
-      label: "Wawan Suparman, S.Ti - biologi",
+      label: "biologi",
       color: "bg-green-500",
     },
     {
-      id: 5,
-      value: "abcde, S.Kom",
+      id: 4,
+      value: "fisika",
       mapel: "fisika",
-      label: "abcde, S.Kom - fisika",
+      label: "fisika",
       color: "bg-yellow-500",
     },
     {
-      id: 6,
-      value: "afgdh, S.Kom",
+      id: 5,
+      value: "geografi",
       mapel: "geografi",
-      label: "afgdh, S.Kom - geografi",
+      label: "geografi",
       color: "bg-purple-500",
     },
     {
-      id: 7,
-      value: "kkwo2, S.Kom",
+      id: 6,
+      value: "sejarah",
       mapel: "sejarah",
-      label: "kkwo2, S.Kom - sejarah",
+      label: "sejarah",
       color: "bg-pink-500",
     },
     {
-      id: 8,
-      value: "pp2id, S.Kom",
+      id: 7,
+      value: "bahasa inggris",
       mapel: "bahasa inggris",
-      label: "pp2id, S.Kom - bahasa inggris",
+      label: "bahasa inggris",
       color: "bg-indigo-500",
     },
   ];
@@ -95,23 +107,136 @@ const CreateTicketPage = () => {
     },
   ];
 
-  const [selectedJenis, setSelectedJenis] = useState(null);
-  const [selectedOptions, setSelectedOptions] = useState([]);
-  const [timePicked, setTimePicked] = useState("");
-  const [description, setDescription] = useState("");
+  const now = new Date();
+  // console.log("Current Date:", now.toUTCString());
 
-  const cetak = () => {
-    console.log("Jenis Izin:", selectedJenis);
-    if (selectedJenis === codeJenis.pulang) {
-      console.log("Waktu:", null);
-    } else {
-      console.log("Waktu:", timePicked);
+  // Extract year, month, and day from the current date
+  const year = now.getUTCFullYear();
+  const month = now.getUTCMonth() + 1; // getUTCMonth() returns 0-based index, so add 1
+  const day = now.getUTCDate();
+
+  // Extract current hour and minute in UTC
+  let hour = now.getUTCHours(); // get current hour in UTC
+  let minute = now.getUTCMinutes(); // get current minute in UTC
+
+  // Custom addition to hour and minute
+  let hourCustom = hour + parseInt(selectedHour); // add 6 hours to current time
+  let minuteCustom = minute + parseInt(selectedMinute); // keep minutes as is
+
+  // Handle minute overflow
+  if (minuteCustom >= 60) {
+    hourCustom += Math.floor(minuteCustom / 60); // Add extra hour(s) if minutes exceed 60
+    minuteCustom = minuteCustom % 60; // Get remaining minutes
+  }
+
+  // Handle hour overflow (rolling over midnight)
+  if (hourCustom >= 24) {
+    hourCustom = hourCustom % 24; // Keep the hour within 0-23 range
+  }
+
+  const second = 0; // Set seconds to 0 or as desired
+
+  let formatTime = `${year}-${String(month).padStart(2, "0")}-${String(
+    day
+  ).padStart(2, "0")}T${String(hourCustom).padStart(2, "0")}:${String(
+    minuteCustom
+  ).padStart(2, "0")}:${String(second).padStart(2, "0")}Z`;
+
+  // console.log("Formatted Time:", formatTime);
+
+  const fetchUserInformation = async () => {
+    const response = await AxiosInstance.get(`/api/v1/auth/users/${id}`, {
+      headers: { token: token },
+    });
+
+    // console.log(response);
+    setUserData(response.data.data);
+  };
+
+  useEffect(() => {
+    fetchUserInformation().then(() => {
+      // console.log("User Data:", userData);
+    });
+  }, []);
+
+  const handleCreateTiket = async () => {
+    const subjectsArray = selectedOptions.map((option) => option.label);
+
+    const category = checked1 ? 7010 : checked2 ? 7020 : checked3 ? 7030 : null;
+
+    const formData = {
+      idUser: id,
+      username: userData.username,
+      nisn: userData.nisn,
+      classGrade: userData.classGrade,
+      email: userData.email,
+      TimeCountdown: selectedJenis === codeJenis.pulang ? null : formatTime,
+      startTime: "00:00:00",
+      endTime: "00:00:00",
+      codeStatus: 4444,
+      category,
+      subjects: subjectsArray,
+      description: description,
+      date: new Date().toLocaleDateString("id-ID", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      }),
+      offline: true,
+    };
+
+    // console.log("Form Data:", formData);
+
+    try {
+      const response = await AxiosInstance.post(
+        "/api/v1/tickets/create",
+        formData,
+        {
+          headers: { token: token },
+        }
+      );
+      // console.log("Data:", response.data.data._id);
+
+      if (response.data.status === 200) {
+        // alert(response.data.message);
+        navigate(`/ticket/print/${response.data.data._id}`);
+      }
+    } catch (error) {
+      console.error("Error creating ticket:", error);
     }
-    console.log("Description:", description);
-    console.log("Mata Pelajaran:", selectedOptions);
+  };
+
+  const handleTimeChange = (e) => {
+    const timeValue = e.target.value;
+    setTimePicked(timeValue);
+
+    const [hour, minute] = timeValue.split(":");
+    setSelectedHour(hour);
+    setSelectedMinute(minute);
+
+    if (parseInt(hour, 10) > 10) {
+      alert("The selected hour is greater than 10.");
+      window.location.reload();
+    }
+  };
+
+  const handleCancel = () => {
+    navigate("/");
   };
 
   const JenisIzin = () => {
+    const toggleCheckBox1 = () => {
+      setChecked1(true), setChecked2(false), setChecked3(false);
+    };
+
+    const toggleCheckBox2 = () => {
+      setChecked1(false), setChecked2(true), setChecked3(false);
+    };
+
+    const toggleCheckBox3 = () => {
+      setChecked1(false), setChecked2(false), setChecked3(true);
+    };
+
     return (
       <Field className="mb-5">
         <Label className="text-lg font-medium text-white">Jenis</Label>
@@ -119,34 +244,69 @@ const CreateTicketPage = () => {
           Pilih jenis izin anda dengan jujur!
         </Description>
         <div className="grid grid-cols-2 md:grid-cols-3 mt-5">
-          {data.map((item) => (
-            <div
-              key={item.id}
-              className="flex justify-center items-center gap-3"
+          <div className="flex justify-center items-center gap-3">
+            <h1 className="text-xl font-semibold text-white/70">Dispen</h1>
+            <Checkbox
+              checked={checked1}
+              onChange={toggleCheckBox1}
+              className="group block size-4 rounded border bg-white/70 data-[checked]:bg-gray-700"
             >
-              <h1 className="text-xl font-semibold text-white/70">
-                {item.jenis}
-              </h1>
-              <Checkbox
-                checked={selectedJenis === item.code}
-                onChange={() => setSelectedJenis(item.code)}
-                className="group block size-4 rounded border bg-white/70 data-[checked]:bg-gray-700"
+              <svg
+                className="stroke-white opacity-0 group-data-[checked]:opacity-100"
+                viewBox="0 0 14 14"
+                fill="none"
               >
-                <svg
-                  className="stroke-white opacity-0 group-data-[checked]:opacity-100"
-                  viewBox="0 0 14 14"
-                  fill="none"
-                >
-                  <path
-                    d="M3 8L6 11L11 3.5"
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </Checkbox>
-            </div>
-          ))}
+                <path
+                  d="M3 8L6 11L11 3.5"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </Checkbox>
+          </div>
+          <div className="flex justify-center items-center gap-3">
+            <h1 className="text-xl font-semibold text-white/70">Izin</h1>
+            <Checkbox
+              checked={checked2}
+              onChange={toggleCheckBox2}
+              className="group block size-4 rounded border bg-white/70 data-[checked]:bg-gray-700"
+            >
+              <svg
+                className="stroke-white opacity-0 group-data-[checked]:opacity-100"
+                viewBox="0 0 14 14"
+                fill="none"
+              >
+                <path
+                  d="M3 8L6 11L11 3.5"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </Checkbox>
+          </div>
+          <div className="flex justify-center items-center gap-3">
+            <h1 className="text-xl font-semibold text-white/70">Pulang</h1>
+            <Checkbox
+              checked={checked3}
+              onChange={toggleCheckBox3}
+              className="group block size-4 rounded border bg-white/70 data-[checked]:bg-gray-700"
+            >
+              <svg
+                className="stroke-white opacity-0 group-data-[checked]:opacity-100"
+                viewBox="0 0 14 14"
+                fill="none"
+              >
+                <path
+                  d="M3 8L6 11L11 3.5"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </Checkbox>
+          </div>
         </div>
       </Field>
     );
@@ -162,7 +322,8 @@ const CreateTicketPage = () => {
         <Input
           type="time"
           value={timePicked}
-          onChange={(e) => setTimePicked(e.target.value)}
+          onChange={handleTimeChange}
+          max="10:00"
           className={clsx(
             "mt-3 block rounded-lg border-none bg-white/5 py-1.5 px-3 text-sm/6 text-white",
             "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
@@ -178,7 +339,7 @@ const CreateTicketPage = () => {
         <div className="w-full md:w-1/2 mx-auto flex flex-col md:pr-6">
           <div>
             <JenisIzin />
-            {selectedJenis !== codeJenis.pulang && <Waktu />}
+            {!checked3 ? <Waktu /> : null}
 
             <Field>
               <Label className="text-xl font-medium text-white">
@@ -190,6 +351,7 @@ const CreateTicketPage = () => {
               <Textarea
                 name="description"
                 placeholder="Isi disini..."
+                maxLength={25}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className={clsx(
@@ -251,12 +413,15 @@ const CreateTicketPage = () => {
       </div>
       <div className="flex gap-5">
         <Button
-          onClick={cetak}
+          onClick={handleCreateTiket}
           className="mt-5 inline-flex items-center gap-2 rounded-md bg-gray-700 py-1.5 px-3 text-sm/6 font-semibold text-white shadow-inner shadow-white/10 focus:outline-none data-[hover]:bg-gray-600 data-[open]:bg-gray-700 data-[focus]:outline-1 data-[focus]:outline-white"
         >
-          CETAK TIKET IZIN
+          BUAT TIKET
         </Button>
-        <Button className="mt-5 inline-flex items-center gap-2 rounded-md bg-red-700 py-1.5 px-3 text-sm/6 font-semibold text-white shadow-inner shadow-white/10 focus:outline-none data-[hover]:bg-red-600 data-[open]:bg-red-700 data-[focus]:outline-1 data-[focus]:outline-white">
+        <Button
+          onClick={handleCancel}
+          className="mt-5 inline-flex items-center gap-2 rounded-md bg-red-700 py-1.5 px-3 text-sm/6 font-semibold text-white shadow-inner shadow-white/10 focus:outline-none data-[hover]:bg-red-600 data-[open]:bg-red-700 data-[focus]:outline-1 data-[focus]:outline-white"
+        >
           BATALKAN
         </Button>
       </div>
